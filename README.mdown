@@ -1,8 +1,12 @@
 ##### This fork fixes some issues:
 
-- property shouldNotCallSuperOnBeginTracking was added, because on iOS 7+ call to UISlider beginTrackingWithTouch:touch withEvent:event causes glitch (its default value is NOT for compatibility)
-- original slider value on begin tracking is remembered and on endTrackingWithTouch:touch withEvent: is compared with current value, only if different sendActionsForControlEvents:UIControlEventValueChanged is sent
-- on endTrackingWithTouch:withEvent:  property 'tracking' of UISlider is set (using KVC), originally it's responsibility of [UISlider  endTrackingWithTouch:withEvent:]
+- property `shouldNotCallSuperOnBeginTracking` was added, because on iOS 7+ call to `[super beginTrackingWithTouch:touch withEvent:event]` causes glitch (its default value is **NOT** for compatibility)
+- on `endTrackingWithTouch:withEvent:`  overriden property `tracking` of UISlider is set, originally it's a responsibility of `[super endTrackingWithTouch:withEvent:]`
+
+Example of using the fix on a glitch on iOS 7+:
+
+    self.slider.shouldNotCallSuperOnBeginTracking = [[UIDevice currentDevice].systemVersion compare:@"7.0" options:NSNumericSearch] != NSOrderedAscending;
+
 
 ##### Original description
 

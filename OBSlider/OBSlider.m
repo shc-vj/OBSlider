@@ -155,8 +155,8 @@
 	if (self.tracking)
     {
 		// because [UISlider endTrackingWithTouch:withEvent:] interfere with our code
-		// we can't call super, but we should at least set the 'tracking' property to NO
-		[self setValue:@(NO) forKey:@"tracking"];
+		// we can't call super, but we use overriden property to indicate end of tracking
+		self.tracking = NO;
 		
 		self.scrubbingSpeed = [[self.scrubbingSpeeds objectAtIndex:0] floatValue];
 		

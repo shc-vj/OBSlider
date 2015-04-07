@@ -13,7 +13,8 @@
 @property (assign, nonatomic, readwrite) float scrubbingSpeed;
 @property (assign, nonatomic, readwrite) float realPositionValue;
 @property (assign, nonatomic) CGPoint beganTrackingLocation;
-@property (assign, nonatomic) float beganTrackingValue;
+@property (nonatomic,getter=isTracking) BOOL tracking;
+
 
 - (NSUInteger)indexOfLowerScrubbingSpeed:(NSArray*)scrubbingSpeedPositions forOffset:(CGFloat)verticalOffset;
 - (NSArray *)defaultScrubbingSpeeds;
@@ -28,9 +29,8 @@
 @synthesize scrubbingSpeed = _scrubbingSpeed;
 @synthesize scrubbingSpeeds = _scrubbingSpeeds;
 @synthesize scrubbingSpeedChangePositions = _scrubbingSpeedChangePositions;
-@synthesize beganTrackingLocation = _beganTrackingLocation;
 @synthesize realPositionValue = _realPositionValue;
-@synthesize beganTrackingValue = _beganTrackingValue;
+@synthesize tracking = _tracking;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -85,7 +85,14 @@
 
 - (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
 {
-	BOOL beginTracking = self.shouldNotCallSuperOnBeginTracking ? YES :	[super beginTrackingWithTouch:touch withEvent:event];
+	// Skipping call to [super beginTrackingWithTouch:withEvent:] fixes a "jump" that occurs on touchdown on iOS 7 (and up?)
+	BOOL beginTracking;
+	if( self.shouldNotCallSuperOnBeginTracking ) {
+		beginTracking = YES;
+		[self sendActionsForControlEvents:UIControlEventValueChanged];
+	} else {
+		beginTracking = [super beginTrackingWithTouch:touch withEvent:event];
+	}
 	
 	if (beginTracking)
     {
@@ -100,9 +107,6 @@
 		self.beganTrackingLocation = CGPointMake(CGRectGetMidX(thumbRect), CGRectGetMidY(thumbRect));
 		
         self.realPositionValue = self.value;
-		
-		// remeber original value
-		self.beganTrackingValue = self.value;
     }
 	
     return beginTracking;
@@ -156,10 +160,7 @@
 		
 		self.scrubbingSpeed = [[self.scrubbingSpeeds objectAtIndex:0] floatValue];
 		
-		// check if the value was changed
-		if( self.value != self.beganTrackingValue ) {
-			[self sendActionsForControlEvents:UIControlEventValueChanged];
-		}
+		[self sendActionsForControlEvents:UIControlEventValueChanged];
     }
 }
 
